@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AetherNode Blog | База знаний Blender</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="..//сайт/favicon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-dark: #070709;
+            --bg-card: #111114;
+            --primary: #E87D0D; 
+            --accent: #00E5FF;  
+            --text-main: #ffffff;
+            --text-muted: #8b8b93;
+            --border: rgba(255, 255, 255, 0.08);
+            --glass: rgba(11, 11, 14, 0.75);
+            --ease-out-expo: cubic-bezier(0.19, 1, 0.22, 1);
+            --error: #ef4444;
+            --success: #10b981;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        @media (min-width: 769px) { body { cursor: none; } a, button, .hover-target, input, select { cursor: pointer !important; } }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        h1, h2, h3, h4 { font-family: 'Space Grotesk', sans-serif; font-weight: 700; }
+        a { text-decoration: none; color: inherit; }
+
+        .scroll-progress { position: fixed; top: 0; left: 0; height: 3px; background: linear-gradient(90deg, var(--primary), var(--accent)); width: 0%; z-index: 1010; transition: width 0.1s linear; }
+        
+        .cursor-dot, .cursor-outline { position: fixed; top: 0; left: 0; transform: translate(-50%, -50%); border-radius: 50%; z-index: 9999; pointer-events: none; opacity: 0; transition: opacity 0.2s ease, width 0.2s, height 0.2s, background-color 0.2s; }
+        .cursor-dot { width: 8px; height: 8px; background-color: var(--primary); }
+        .cursor-outline { width: 40px; height: 40px; border: 1px solid rgba(232, 125, 13, 0.5); }
+        body.hovering .cursor-outline { width: 55px; height: 55px; background-color: rgba(232, 125, 13, 0.08); border-color: var(--primary); }
+
+        .bg-grid {
+            position: fixed; top: -10%; left: -10%; width: 120vw; height: 120vh;
+            background-image: linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px);
+            background-size: 50px 50px; opacity: 0.15; z-index: -1;
+            mask-image: radial-gradient(circle at center, black 30%, transparent 80%);
+            -webkit-mask-image: radial-gradient(circle at center, black 30%, transparent 80%);
+        }
+
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+        section { padding: 40px 0; position: relative; }
+
+        header { position: fixed; top: 0; width: 100%; padding: 24px 0; z-index: 1000; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); transition: all 0.4s var(--ease-out-expo); border-bottom: 1px solid transparent; }
+        header.scrolled { padding: 14px 0; background: var(--glass); border-bottom: 1px solid var(--border); }
+        nav { display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 1.6rem; letter-spacing: -0.02em; z-index: 1002; }
+        .logo span { color: var(--accent); }
+        .nav-container { display: flex; align-items: center; gap: 32px; }
+        .nav-links { display: flex; gap: 40px; align-items: center; list-style: none; }
+        .nav-links a { font-size: 0.9rem; color: var(--text-muted); transition: color 0.3s; padding: 4px 0; }
+        .nav-links a:hover { color: var(--text-main); }
+        
+        .btn { display: inline-flex; align-items: center; padding: 10px 24px; background: var(--primary); color: white; font-weight: 600; border-radius: 8px; border: none; transition: all 0.3s; font-size: 0.9rem; }
+        .btn:hover { box-shadow: 0 10px 30px -10px rgba(232, 125, 13, 0.6); }
+        .btn-profile { background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border); color: var(--accent); }
+
+        .hero { padding-top: 140px; padding-bottom: 20px; }
+        .badge { display: inline-block; padding: 6px 16px; background: rgba(0, 229, 255, 0.08); color: var(--accent); border: 1px solid rgba(0, 229, 255, 0.15); border-radius: 100px; font-size: 0.85rem; margin-bottom: 24px; text-transform: uppercase; letter-spacing: 0.05em; }
+        .hero h1 { font-size: clamp(2.2rem, 5vw, 3.8rem); line-height: 1.1; margin-bottom: 24px; background: linear-gradient(135deg, #ffffff 40%, #8b8b93 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .hero p { font-size: 1.1rem; color: var(--text-muted); max-width: 700px; }
+
+        .section-title { font-size: 1.75rem; margin-bottom: 32px; display: flex; align-items: center; gap: 12px; font-family: 'Space Grotesk'; }
+        .section-title::before { content: '//'; color: var(--primary); }
+
+        .search-container { margin: 20px 0 10px 0; position: relative; max-width: 500px; }
+        .search-input { width: 100%; padding: 16px 24px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; color: var(--text-main); font-size: 1rem; outline: none; transition: all 0.3s; }
+        .search-input:focus { border-color: var(--accent); box-shadow: 0 0 25px rgba(0, 229, 255, 0.15); }
+
+        /* Слайдеры */
+        .catalog-slider-wrapper { position: relative; width: 100%; margin-bottom: 40px; }
+        .catalog-scroll-container { width: 100%; overflow-x: auto; scrollbar-width: none; padding: 10px 4px; }
+        .catalog-scroll-container::-webkit-scrollbar { display: none; }
+        .catalog-grid { display: flex; gap: 30px; width: max-content; }
+
+        .product-card {
+            width: 380px; flex-shrink: 0; background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px;
+            overflow: hidden; position: relative; transform-style: preserve-3d; transition: border-color 0.3s, transform 0.15s ease-out; display: block;
+        }
+        .product-card.hidden { display: none !important; }
+        .card-shine { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle 200px at var(--x, 0px) var(--y, 0px), rgba(255,255,255,0.06), transparent 80%); z-index: 3; pointer-events: none; }
+        
+        .product-image { height: 180px; background: linear-gradient(135deg, #181822, #0d0d12); display: flex; align-items: center; justify-content: center; position: relative; border-bottom: 1px solid var(--border); }
+        .product-image span { font-family: 'Space Grotesk'; font-size: 2.5rem; font-weight: 700; color: rgba(255,255,255,0.03); letter-spacing: 0.05em; transition: color 0.3s; }
+        
+        .product-info { padding: 24px; }
+        .product-tag { font-size: 0.75rem; color: var(--accent); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; }
+        .product-title { font-size: 1.15rem; margin-bottom: 12px; line-height: 1.4; color: #fff; }
+        .product-meta { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border); font-size: 0.85rem; color: var(--text-muted); }
+
+        .slider-scrollbar { width: 100%; height: 4px; background: rgba(255, 255, 255, 0.05); border-radius: 10px; margin-top: 24px; position: relative; }
+        .slider-scrollbar-thumb { position: absolute; top: 0; left: 0; height: 100%; width: 15%; background: linear-gradient(90deg, var(--primary), var(--accent)); border-radius: 10px; }
+
+        /* Модалки */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(8px); z-index: 1090; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
+        .modal-overlay.active { opacity: 1; pointer-events: auto; }
+        .auth-modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -45%); width: 450px; max-width: calc(100vw - 32px); background: #0f0f12; border: 1px solid var(--border); border-radius: 24px; padding: 32px; z-index: 1100; opacity: 0; pointer-events: none; transition: all 0.3s ease; }
+        .auth-modal.active { opacity: 1; pointer-events: auto; transform: translate(-50%, -50%); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+        .close-btn { background: transparent; border: none; color: var(--text-muted); font-size: 1.8rem; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 8px; }
+        .form-input { width: 100%; padding: 14px 16px; background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: 10px; color: white; outline: none; }
+        
+        .profile-stat { background: rgba(255,255,255,0.02); border: 1px solid var(--border); padding: 16px; border-radius: 12px; margin-bottom: 24px; text-align: center; }
+        .profile-xp { font-family: 'Space Grotesk'; font-size: 2rem; color: var(--primary); font-weight: 700; }
+        .lesson-progress-item { margin-bottom: 16px; }
+        .lesson-progress-meta { display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 6px; }
+        .progress-bar-bg { width: 100%; height: 6px; background: rgba(255,255,255,0.05); border-radius: 10px; overflow: hidden; }
+        .progress-bar-fill { height: 100%; width: 0%; background: var(--accent); transition: width 0.5s ease; }
+        .progress-bar-fill.completed { background: var(--success); width: 100%; }
+
+        .reveal { opacity: 0; transform: translateY(30px); transition: opacity 1s var(--ease-out-expo), transform 1s var(--ease-out-expo); }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+        footer { border-top: 1px solid var(--border); padding: 40px 0; text-align: center; color: var(--text-muted); margin-top: 60px; }
+
+        @media (max-width: 768px) {
+            .nav-links { display: none; }
+            .catalog-scroll-container { overflow-x: visible; padding: 0; }
+            .catalog-grid { display: grid; grid-template-columns: 1fr; gap: 20px; width: 100%; }
+            .product-card { width: 100%; transform: none !important; }
+            .slider-scrollbar, .cursor-dot, .cursor-outline { display: none !important; }
+        }
+        /* Основной контейнер шапки */
+.header-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: nowrap; /* Не даем элементам ломать строку раньше времени */
+    gap: 15px;
+    padding: 10px 20px;
+}
+
+/* Стили для самого списка ссылок (Главная, Каталог...) */
+.nav-menu {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+}
+
+/* Адаптив для планшетов и мобильных */
+@media (max-width: 840px) {
+    /* Вариант А: Если хотите оставить меню в строку, но уменьшить отступы */
+    .nav-menu {
+        gap: 10px;
+        font-size: 14px; /* Немного уменьшаем шрифт, чтобы всё влезло */
+    }
+    
+    .btn-cabinet {
+        padding: 8px 16px; /* Уменьшаем кнопку «Личный кабинет» */
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 768px) {
+    /* Вариант Б: Скрываем обычное меню на ширине 707px (как в Снимок экрана 2026-06-17 001028.png) 
+       и переводим его в мобильный вид (скрытое меню/бургер) */
+    .nav-menu, .btn-cabinet {
+        display: none; /* Сюда нужно будет повесить класс для раскрывающегося мобильного меню */
+    }
+    
+    /* Кнопка бургера (если добавите её в HTML) */
+    .burger-menu-icon {
+        display: block;
+    }
+}
+.courses-title {
+    /* Наследуем шрифт всей страницы или явно задаем шрифт без засечек */
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    
+    /* Убираем стандартные засечки, если до этого стоял Serif */
+    font-variant: normal; 
+    
+    /* Подгоняем насыщенность под стиль остального сайта (например, полужирный) */
+    font-weight: 700; 
+    
+    /* Делаем аккуратный межсимвольный интервал, если нужно */
+    letter-spacing: -0.02em;
+}
+
+/* Если хотите, чтобы косые черты '//' были оранжевыми (как на скрине), 
+   а сам текст — белым и в правильном шрифте: */
+.courses-title span.slashes {
+    color: #ff7a00; /* Ваш оранжевый цвет */
+    margin-right: 10px;
+    font-family: inherit;
+}
+    </style>
+</head>
+<body>
+
+    <div class="scroll-progress" id="scroll-bar"></div>
+    <div class="cursor-dot"></div>
+    <div class="cursor-outline"></div>
+    <div class="bg-grid"></div>
+
+    <div class="modal-overlay" id="modal-overlay"></div>
+
+    <!-- Модалка входа -->
+    <div class="auth-modal" id="login-modal">
+        <div class="modal-header">
+            <h2>Регистрация / Терминал</h2>
+            <button class="close-btn hover-target" onclick="closeAllModals()">×</button>
+        </div>
+        <form id="login-form">
+            <div class="form-group">
+                <label for="user-email">Ваш рабочий E-mail</label>
+                <input type="email" id="user-email" class="form-input" placeholder="student@aethernode.com" required>
+            </div>
+            <button type="submit" class="btn hover-target" style="width: 100%; justify-content: center;">Инициализировать профиль</button>
+        </form>
+    </div>
+
+    <!-- Модалка профиля -->
+    <div class="auth-modal" id="profile-modal" style="width: 500px;">
+        <div class="modal-header">
+            <h2>Личное дело инженера</h2>
+            <button class="close-btn hover-target" onclick="closeAllModals()">×</button>
+        </div>
+        <div class="profile-stat">
+            <div style="font-size: 0.85rem; color: var(--text-muted);">Профиль: <span id="profile-email-text" style="color:#fff;"></span></div>
+            <div class="profile-xp" id="profile-xp-text">0 XP</div>
+            <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Общий набранный опыт (XP)</div>
+        </div>
+        <h3 style="font-family: 'Space Grotesk'; font-size: 1.1rem; margin-bottom: 16px;">Прогресс прохождения лекций:</h3>
+        <div id="progress-list-container"></div>
+        <button class="btn btn-profile hover-target" onclick="logout()" style="width: 100%; justify-content: center; margin-top: 20px; border-color: var(--error); color: var(--error);">Выйти из системы</button>
+    </div>
+
+    <header id="header">
+        <div class="container">
+            <nav>
+                <a href="index.html" class="logo hover-target">Aether<span>Node</span></a>
+                <div class="nav-container">
+                    <ul class="nav-links">
+                        <li><a href="index.html" class="hover-target">Главная</a></li>
+                        <li><a href="index.html#catalog" class="hover-target">Каталог</a></li>
+                        <li><a href="#" style="color:var(--accent)" class="hover-target">Блог</a></li>
+                        <li><button class="btn hover-target" id="auth-nav-btn" onclick="handleAuthClick()">Войти в систему</button></li>
+                    </ul>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="container">
+                <div class="hero-content reveal active">
+                    <div class="badge">База Знаний Инженеров</div>
+                    <h1>Технический ИТ-блог студии</h1>
+                    <p>Приоритетная образовательная программа. Изучайте математику трехмерного пространства, автоматизируйте пайплайн кодом на Python и зарабатывайте очки опыта.</p>
+                    <div class="search-container">
+                        <input type="text" class="search-input" id="search-bar" placeholder="Глобальный поиск по архивам студии...">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ПРИОРИТЕТ 1: ОБУЧЕНИЕ И КУРСЫ (ТЕПЕРЬ НАВЕРХУ) -->
+        <section id="lessons-section">
+            <div class="container">
+                <h2 class="section-title">Практические ИТ-курсы и автоматизация</h2>
+                <div class="catalog-slider-wrapper reveal active">
+                    <div class="catalog-scroll-container" id="scroll-lessons">
+                        <div class="catalog-grid">
+                            <a href="post.html?id=5" class="product-card hover-target" data-tilt>
+                                <div class="card-shine"></div>
+                                <div class="product-image"><span>MATH 3D</span></div>
+                                <div class="product-info">
+                                    <div class="product-tag">Урок // +50 XP</div>
+                                    <h3 class="product-title">Урок 1: Введение в Blender 4.x. Матрицы трансформаций и примитивы</h3>
+                                    <div class="product-meta"><span>16 Июня 2026</span><span style="color:var(--primary)">Изучить (+50 XP) →</span></div>
+                                end    </div>
+                            </a>
+                            <a href="post.html?id=7" class="product-card hover-target" data-tilt>
+                                <div class="card-shine"></div>
+                                <div class="product-image"><span>PBR SHADER</span></div>
+                                <div class="product-info">
+                                    <div class="product-tag">Урок // +75 XP</div>
+                                    <h3 class="product-title">Урок 2: Физика и программирование процедурного PBR-стекла (Fresnel)</h3>
+                                    <div class="product-meta"><span>08 Июня 2026</span><span style="color:var(--primary)">Изучить (+75 XP) →</span></div>
+                                </div>
+                            </a>
+                            <a href="post.html?id=8" class="product-card hover-target" data-tilt>
+                                <div class="card-shine"></div>
+                                <div class="product-image"><span>TOPOLOGY</span></div>
+                                <div class="product-info">
+                                    <div class="product-tag">Урок // +100 XP</div>
+                                    <h3 class="product-title">Урок 3: Топология и скульптинг органики: Скрипт быстрой ретопологии</h3>
+                                    <div class="product-meta"><span>28 Мая 2026</span><span style="color:var(--primary)">Изучить (+100 XP) →</span></div>
+                                </div>
+                            </a>
+                            <a href="post.html?id=9" class="product-card hover-target" data-tilt>
+                                <div class="card-shine"></div>
+                                <div class="product-image"><span>CYBERPUNK</span></div>
+                                <div class="product-info">
+                                    <div class="product-tag">Урок // +60 XP</div>
+                                    <h3 class="product-title">Урок 4: Программирование трехточечного студийного света на Python</h3>
+                                    <div class="product-meta"><span>18 Мая 2026</span><span style="color:var(--primary)">Изучить (+60 XP) →</span></div>
+                                </div>
+                            </a>
+                            <a href="post.html?id=2" class="product-card hover-target" data-tilt>
+                                <div class="card-shine"></div>
+                                <div class="product-image"><span>GEO NODES</span></div>
+                                <div class="product-info">
+                                    <div class="product-tag">Урок // +90 XP</div>
+                                    <h3 class="product-title">Урок 5: Geometry Nodes: Как генерировать процедурные здания кодом</h3>
+                                    <div class="product-meta"><span>02 Июня 2026</span><span style="color:var(--primary)">Изучить (+90 XP) →</span></div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="slider-scrollbar"><div class="slider-scrollbar-thumb" id="thumb-lessons"></div></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ПРИОРИТЕТ 2: НОВОСТИ И АНАЛИТИКА (ТЕПЕРЬ ВНИЗУ) -->
+        <section id="news-section">
+            <div class="container">
+                <h2 class="section-title">Новости и аналитика ИТ-индустрии</h2>
+                <div class="catalog-slider-wrapper reveal active">
+                    <div class="catalog-scroll-container" id="scroll-news">
+                        <div class="catalog-grid">
+                            <a href="post.html?id=1" class="product-card hover-target" data-tilt>
+                                <div class="card-shine"></div>
+                                <div class="product-image"><span>EEVEE NEXT</span></div>
+                                <div class="product-info">
+                                    <div class="product-tag">Анализ Архитектуры</div>
+                                    <h3 class="product-title">Глубокий разбор Blender 4.2 LTS: Переход на EEVEE Next и шейдеры Raytracing</h3>
+                                    <div class="product-meta"><span>15 Июня 2026</span><span style="color:var(--accent)">Читать статью →</span></div>
+                                </div>
+                            </a>
+                            <a href="post.html?id=6" class="product-card hover-target" data-tilt>
+                                <div class="card-shine"></div>
+                                <div class="product-image"><span>METAL API</span></div>
+                                <div class="product-info">
+                                    <div class="product-tag">Архитектура Процессоров</div>
+                                    <h3 class="product-title">Blender на Apple Silicon M4: Тесты вычислений ядер трассировки</h3>
+                                    <div class="product-meta"><span>12 Июня 2026</span><span style="color:var(--accent)">Читать статью →</span></div>
+                                </div>
+                            </a>
+                            <a href="post.html?id=3" class="product-card hover-target" data-tilt>
+                                <div class="card-shine"></div>
+                                <div class="product-image"><span>UE 5.5 PIPELINE</span></div>
+                                <div class="product-info">
+                                    <div class="product-tag">Пайплайны Студий</div>
+                                    <h3 class="product-title">Экспорт FBX из Blender в Unreal Engine 5.5: Борьба с триангуляцией нормалей</h3>
+                                    <div class="product-meta"><span>24 Мая 2026</span><span style="color:var(--accent)">Читать статью →</span></div>
+                                </div>
+                            </a>
+                            <a href="post.html?id=4" class="product-card hover-target" data-tilt>
+                                <div class="card-shine"></div>
+                                <div class="product-image"><span>GPU MEMORY</span></div>
+                                <div class="product-info">
+                                    <div class="product-tag">Оптимизация</div>
+                                    <h3 class="product-title">Тренды 2026 года: Экономия видеопамяти через процедурные 3D-шумы</h3>
+                                    <div class="product-meta"><span>10 Мая 2026</span><span style="color:var(--accent)">Читать статью →</span></div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="slider-scrollbar"><div class="slider-scrollbar-thumb" id="thumb-news"></div></div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container"><p>&copy; 2026 AetherNode Labs. Образовательная ИТ-система управления прогрессом.</p></div>
+    </footer>
+
+    <script>
+        const LESSONS_LIST = [
+            { id: "5", title: "Урок 1: Матрицы трансформаций", xp: 50 },
+            { id: "7", title: "Урок 2: Процедурное PBR-стекло", xp: 75 },
+            { id: "8", title: "Урок 3: Топология и скульптинг", xp: 100 },
+            { id: "9", title: "Урок 4: Студийный свет на Python", xp: 60 },
+            { id: "2", title: "Урок 5: Geometry Nodes здания", xp: 90 }
+        ];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            updateAuthUI();
+            setupSlider('scroll-news', 'thumb-news');
+            setupSlider('scroll-lessons', 'thumb-lessons');
+            initCursorAndTilt();
+        });
+
+        function updateAuthUI() {
+            const currentUser = localStorage.getItem('aether_user');
+            const authBtn = document.getElementById('auth-nav-btn');
+            if (currentUser) {
+                authBtn.innerText = 'Личный кабинет';
+                authBtn.classList.add('btn-profile');
+            } else {
+                authBtn.innerText = 'Войти в систему';
+                authBtn.classList.remove('btn-profile');
+            }
+        }
+
+        function handleAuthClick() {
+            const currentUser = localStorage.getItem('aether_user');
+            document.getElementById('modal-overlay').classList.add('active');
+            if (currentUser) {
+                document.getElementById('profile-email-text').innerText = currentUser;
+                const completed = JSON.parse(localStorage.getItem('aether_completed_lessons') || '[]');
+                let totalXp = 0; let html = '';
+                
+                LESSONS_LIST.forEach(lesson => {
+                    const isDone = completed.includes(lesson.id);
+                    if(isDone) totalXp += lesson.xp;
+                    html += `
+                        <div class="lesson-progress-item">
+                            <div class="lesson-progress-meta">
+                                <span>${lesson.title}</span>
+                                <span style="color: ${isDone ? 'var(--success)' : 'var(--text-muted)'}">${isDone ? 'Завершено (+'+lesson.xp+' XP)' : 'Не изучено'}</span>
+                            </div>
+                            <div class="progress-bar-bg"><div class="progress-bar-fill ${isDone ? 'completed' : ''}"></div></div>
+                        </div>
+                    `;
+                });
+                
+                document.getElementById('profile-xp-text').innerText = `${totalXp} XP`;
+                document.getElementById('progress-list-container').innerHTML = html;
+                document.getElementById('profile-modal').classList.add('active');
+            } else {
+                document.getElementById('login-modal').classList.add('active');
+            }
+        }
+
+        document.getElementById('login-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = document.getElementById('user-email').value.trim();
+            if (email) {
+                localStorage.setItem('aether_user', email);
+                closeAllModals();
+                updateAuthUI();
+            }
+        });
+
+        function logout() { localStorage.removeItem('aether_user'); closeAllModals(); updateAuthUI(); }
+        function closeAllModals() {
+            document.getElementById('modal-overlay').classList.remove('active');
+            document.getElementById('login-modal').classList.remove('active');
+            document.getElementById('profile-modal').classList.remove('active');
+        }
+
+        function setupSlider(containerId, thumbId) {
+            const container = document.getElementById(containerId);
+            const thumb = document.getElementById(thumbId);
+            if (!container || !thumb) return;
+            if (('ontouchstart' in window) || (navigator.maxTouchPoints > 0)) return;
+
+            let target = 0; let current = 0;
+            container.addEventListener('wheel', (e) => {
+                if (e.deltaY !== 0) {
+                    e.preventDefault();
+                    target += e.deltaY * 1.5;
+                    target = Math.max(0, Math.min(target, container.scrollWidth - container.clientWidth));
+                }
+            }, { passive: false });
+
+            function smoothScroll() {
+                current += (target - current) * 0.1; container.scrollLeft = current;
+                const maxScroll = container.scrollWidth - container.clientWidth;
+                if(maxScroll > 0) {
+                    const percent = (container.scrollLeft / maxScroll) * 100;
+                    const tWidth = (container.clientWidth / container.scrollWidth) * 100;
+                    thumb.style.width = `${tWidth}%`; thumb.style.left = `${percent * (1 - tWidth / 100)}%`;
+                }
+                requestAnimationFrame(smoothScroll);
+            }
+            requestAnimationFrame(smoothScroll);
+        }
+
+        function initCursorAndTilt() {
+            const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+            if (!isTouchDevice) {
+                const dot = document.querySelector('.cursor-dot');
+                const outline = document.querySelector('.cursor-outline');
+                let mx = 0, my = 0, ox = 0, oy = 0;
+
+                window.addEventListener('mousemove', (e) => { 
+                    mx = e.clientX; my = e.clientY; 
+                    dot.style.opacity = '1'; outline.style.opacity = '1'; 
+                    dot.style.left = `${mx}px`; dot.style.top = `${my}px`; 
+                });
+                
+                const animCursor = () => { 
+                    ox += (mx - ox) * 0.12; oy += (my - oy) * 0.12; 
+                    outline.style.left = `${ox}px`; outline.style.top = `${oy}px`; 
+                    requestAnimationFrame(animCursor); 
+                };
+                animCursor();
+
+                document.body.addEventListener('mouseover', (e) => { if (e.target.closest('.hover-target')) document.body.classList.add('hovering'); });
+                document.body.addEventListener('mouseout', (e) => { if (e.target.closest('.hover-target')) document.body.classList.remove('hovering'); });
+
+                document.querySelectorAll('[data-tilt]').forEach(card => {
+                    const shine = card.querySelector('.card-shine');
+                    card.addEventListener('mousemove', (e) => {
+                        const r = card.getBoundingClientRect(); const x = e.clientX - r.left; const y = e.clientY - r.top;
+                        card.style.transform = `perspective(1000px) rotateX(${((y - (r.height/2))/(r.height/2))*-5}deg) rotateY(${((x - (r.width/2))/(r.width/2))*5}deg) scale3d(1.01, 1.01, 1.01)`;
+                        if(shine) { shine.style.setProperty('--x', `${x}px`); shine.style.setProperty('--y', `${y}px`); }
+                    });
+                    card.addEventListener('mouseleave', () => card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) scale3d(1, 1, 1)');
+                });
+            } else {
+                document.querySelector('.cursor-dot')?.remove(); document.querySelector('.cursor-outline')?.remove();
+            }
+
+            const line = document.getElementById('scroll-bar');
+            window.addEventListener('scroll', () => {
+                const h = document.documentElement.scrollHeight - window.innerHeight;
+                if (h > 0) line.style.width = `${(window.scrollY / h) * 100}%`;
+            }, { passive: true });
+
+            const searchBar = document.getElementById('search-bar');
+            searchBar.addEventListener('input', (e) => {
+                const q = e.target.value.toLowerCase().trim();
+                document.querySelectorAll('.product-card').forEach(card => {
+                    card.classList.toggle('hidden', !card.innerText.toLowerCase().includes(q));
+                });
+            });
+        }
+    </script>
+</body>
+</html>
