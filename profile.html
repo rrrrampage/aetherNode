@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AetherNode | Личный кабинет</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-dark: #070709;
+            --bg-card: #111114;
+            --primary: #E87D0D; 
+            --accent: #00E5FF;  
+            --text-main: #ffffff;
+            --text-muted: #8b8b93;
+            --border: rgba(255, 255, 255, 0.08);
+            --glass: rgba(11, 11, 14, 0.75);
+            --ease-out-expo: cubic-bezier(0.19, 1, 0.22, 1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        @media (min-width: 769px) {
+            body { cursor: none; }
+            a, button, .hover-target, .hover-cyan { cursor: pointer !important; }
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; font-weight: 700; }
+        a { text-decoration: none; color: inherit; }
+
+        .cursor-dot, .cursor-outline {
+            position: fixed; top: 0; left: 0; transform: translate(-50%, -50%);
+            border-radius: 50%; z-index: 9999; pointer-events: none; opacity: 0; 
+            transition: opacity 0.2s ease, width 0.2s, height 0.2s, background-color 0.2s, border-color 0.2s;
+        }
+        .cursor-dot { width: 8px; height: 8px; background-color: var(--primary); }
+        .cursor-outline { width: 40px; height: 40px; border: 1px solid rgba(232, 125, 13, 0.5); }
+        body.hovering .cursor-outline { width: 55px; height: 55px; background-color: rgba(232, 125, 13, 0.08); border-color: var(--primary); }
+        body.hovering-cyan .cursor-outline { width: 55px; height: 55px; background-color: rgba(0, 229, 255, 0.08); border-color: var(--accent); }
+
+        .bg-grid {
+            position: fixed; top: -10%; left: -10%; width: 120vw; height: 120vh;
+            background-image: linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px);
+            background-size: 50px 50px; opacity: 0.25; z-index: -1;
+            mask-image: radial-gradient(circle at center, black 30%, transparent 80%);
+            -webkit-mask-image: radial-gradient(circle at center, black 30%, transparent 80%);
+        }
+
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+
+        header {
+            position: fixed; top: 0; width: 100%; padding: 24px 0; z-index: 1000;
+            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            background: var(--glass); border-bottom: 1px solid var(--border);
+        }
+        nav { display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 1.6rem; letter-spacing: -0.02em; }
+        .logo span { color: var(--accent); }
+        .nav-links { display: flex; gap: 40px; }
+        .nav-links a { font-size: 0.9rem; color: var(--text-muted); transition: color 0.3s; }
+        .nav-links a:hover { color: var(--text-main); }
+
+        .profile-section { padding: 160px 0 80px; min-height: 100vh; }
+        .profile-grid { display: grid; grid-template-columns: 360px 1fr; gap: 40px; }
+
+        .profile-sidebar {
+            background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px;
+            padding: 40px 30px; display: flex; flex-direction: column; align-items: center; text-align: center;
+            height: fit-content; transform-style: preserve-3d; transition: transform 0.15s ease-out;
+        }
+        .avatar-placeholder {
+            width: 80px; height: 80px; background: linear-gradient(135deg, var(--primary), var(--accent));
+            border-radius: 50%; margin-bottom: 24px; display: flex; align-items: center; justify-content: center;
+            font-family: 'Space Grotesk'; font-weight: 700; font-size: 1.8rem;
+        }
+        .user-name { font-size: 1.4rem; margin-bottom: 6px; }
+        .user-status { color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 40px; }
+
+        /* Круговой прогресс SVG */
+        .progress-container { position: relative; width: 180px; height: 180px; margin-bottom: 30px; }
+        .progress-svg { transform: rotate(-90deg); width: 180px; height: 180px; }
+        .progress-bg { fill: none; stroke: rgba(255,255,255,0.02); stroke-width: 10; }
+        .progress-bar {
+            fill: none; stroke: url(#profile-grad); stroke-width: 10; stroke-linecap: round;
+            stroke-dasharray: 439.8; stroke-dashoffset: 439.8; transition: stroke-dashoffset 1.5s var(--ease-out-expo);
+        }
+        .progress-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; }
+        .progress-percentage { font-family: 'Space Grotesk'; font-size: 2.2rem; font-weight: 700; color: var(--accent); }
+        .progress-label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 2px; }
+
+        .xp-display { font-size: 1.1rem; font-weight: 600; }
+        .xp-display span { color: var(--primary); }
+
+        .profile-content { background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px; padding: 45px; }
+        .content-title { font-size: 2rem; margin-bottom: 32px; letter-spacing: -0.02em; }
+        .content-title span { color: var(--primary); }
+
+        .lessons-list { display: flex; flex-direction: column; gap: 20px; }
+        .lesson-card {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 24px; background: rgba(255,255,255,0.01); border: 1px solid var(--border);
+            border-radius: 14px; transition: border-color 0.3s, background 0.3s;
+        }
+        .lesson-card:hover { border-color: rgba(0, 229, 255, 0.2); background: rgba(255,255,255,0.02); }
+        .lesson-info h3 { font-size: 1.1rem; font-weight: 600; margin-bottom: 6px; }
+        .lesson-date { font-size: 0.85rem; color: var(--text-muted); }
+        .lesson-badge { padding: 6px 16px; background: rgba(0, 229, 255, 0.08); color: var(--accent); border-radius: 100px; font-size: 0.8rem; font-weight: 600; }
+
+        .btn-logout { margin-top: 30px; background: transparent; border: 1px solid var(--border); color: var(--text-muted); padding: 10px 20px; border-radius: 8px; font-weight: 600; font-size: 0.85rem; transition: all 0.3s; width: 100%; }
+        .btn-logout:hover { border-color: #ef4444; color: #ef4444; }
+
+        @media (max-width: 900px) {
+            .profile-grid { grid-template-columns: 1fr; }
+            .profile-section { padding-top: 120px; }
+        }
+        @media (max-width: 768px) {
+            .cursor-dot, .cursor-outline { display: none !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="cursor-dot"></div>
+    <div class="cursor-outline"></div>
+    <div class="bg-grid" id="parallax-grid"></div>
+
+    <header>
+        <div class="container">
+            <nav>
+                <a href="index.html" class="logo hover-cyan">Aether<span>Node</span></a>
+                <div class="nav-links">
+                    <a href="index.html" class="hover-target">Главная</a>
+                    <a href="index.html#catalog" class="hover-target">Каталог</a>
+                    <a href="blog.html" class="hover-target">Блог</a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container profile-section">
+        <div class="profile-grid">
+            
+            <aside class="profile-sidebar hover-target" data-tilt>
+                <div class="avatar-placeholder">U</div>
+                <h2 class="user-name">Инженер Студии</h2>
+                <p class="user-status">Протокол обучения активен</p>
+                
+                <div class="progress-container">
+                    <svg class="progress-svg">
+                        <defs>
+                            <linearGradient id="profile-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="var(--primary)" />
+                                <stop offset="100%" stop-color="var(--accent)" />
+                            </linearGradient>
+                        </defs>
+                        <circle class="progress-bg" cx="90" cy="90" r="70"></circle>
+                        <circle class="progress-bar" id="profile-progress-circle" cx="90" cy="90" r="70"></circle>
+                    </svg>
+                    <div class="progress-text">
+                        <div class="progress-percentage" id="profile-progress-num">0%</div>
+                        <div class="progress-label">Готово</div>
+                    </div>
+                </div>
+
+                <div class="xp-display">Всего опыта: <span id="total-xp">120 XP</span></div>
+                <button class="btn-logout hover-target" id="logout-btn">Выйти из системы</button>
+            </aside>
+
+            <section class="profile-content">
+                <h2 class="content-title"><span>//</span> Пройденные уроки</h2>
+                
+                <div class="lessons-list">
+                    <div class="lesson-card hover-target">
+                        <div class="lesson-info">
+                            <h3>Урок 1: Введение в Blender 4.x. Матрицы трансформаций</h3>
+                            <div class="lesson-date">Завершено: 16 июня 2026</div>
+                        </div>
+                        <div class="lesson-badge">+50 XP</div>
+                    </div>
+
+                    <div class="lesson-card hover-target">
+                        <div class="lesson-info">
+                            <h3>Урок 2: Автоматизация рутины. Скрипты генерации сеток на Python</h3>
+                            <div class="lesson-date">Завершено: 17 июня 2026</div>
+                        </div>
+                        <div class="lesson-badge">+70 XP</div>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+
+            // Защита страницы - редирект если не авторизован
+            if (localStorage.getItem('isLoggedIn') !== 'true') {
+                window.location.href = 'index.html';
+            }
+
+            // Анимация круглого прогресс-бара
+            const circle = document.getElementById('profile-progress-circle');
+            const percentText = document.getElementById('profile-progress-num');
+            const targetPercent = 60; // Процент выполнения уроков
+            const radius = circle.r.baseVal.value;
+            const circumference = 2 * Math.PI * radius;
+
+            setTimeout(() => {
+                const offset = circumference - (targetPercent / 100) * circumference;
+                circle.style.strokeDashoffset = offset;
+                percentText.innerText = `${targetPercent}%`;
+            }, 300);
+
+            // Кнопка выхода
+            document.getElementById('logout-btn').addEventListener('click', () => {
+                localStorage.removeItem('isLoggedIn');
+                window.location.href = 'index.html';
+            });
+
+            // Кастомный курсор
+            if (!isTouchDevice) {
+                const cursorDot = document.querySelector('.cursor-dot');
+                const cursorOutline = document.querySelector('.cursor-outline');
+                const parallaxGrid = document.getElementById('parallax-grid');
+                let mouseX = 0, mouseY = 0, outlineX = 0, outlineY = 0;
+
+                window.addEventListener('mousemove', (e) => {
+                    mouseX = e.clientX; mouseY = e.clientY;
+                    cursorDot.style.opacity = '1'; cursorOutline.style.opacity = '1';
+                    cursorDot.style.left = `${mouseX}px`; cursorDot.style.top = `${mouseY}px`;
+                    if(parallaxGrid) { parallaxGrid.style.transform = `translate(${(mouseX - window.innerWidth/2) * 0.01}px, ${(mouseY - window.innerHeight/2) * 0.01}px)`; }
+                });
+
+                const animateCursor = () => {
+                    outlineX += (mouseX - outlineX) * 0.12; outlineY += (mouseY - outlineY) * 0.12;
+                    cursorOutline.style.left = `${outlineX}px`; cursorOutline.style.top = `${outlineY}px`;
+                    requestAnimationFrame(animateCursor);
+                };
+                animateCursor();
+
+                document.querySelectorAll('.hover-target').forEach(el => {
+                    el.addEventListener('mouseenter', () => document.body.classList.add('hovering'));
+                    el.addEventListener('mouseleave', () => document.body.classList.remove('hovering'));
+                });
+                document.querySelectorAll('.hover-cyan').forEach(el => {
+                    el.addEventListener('mouseenter', () => document.body.classList.add('hovering-cyan'));
+                    el.addEventListener('mouseleave', () => document.body.classList.remove('hovering-cyan'));
+                });
+
+                // Тилт боковой панели
+                const sidebar = document.querySelector('[data-tilt]');
+                sidebar.addEventListener('mousemove', (e) => {
+                    const rect = sidebar.getBoundingClientRect();
+                    const x = e.clientX - rect.left; const y = e.clientY - rect.top;
+                    const centerX = rect.width / 2; const centerY = rect.height / 2;
+                    sidebar.style.transform = `perspective(1000px) rotateX(${((y - centerY)/centerY)*-5}deg) rotateY(${((x - centerX)/centerX)*5}deg)`;
+                });
+                sidebar.addEventListener('mouseleave', () => { sidebar.style.transform = 'perspective(1000px) rotateX(0) rotateY(0)'; });
+            } else {
+                document.querySelector('.cursor-dot')?.remove(); document.querySelector('.cursor-outline')?.remove();
+            }
+        });
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const isLogged = localStorage.getItem('isLoggedIn') === 'true';
+        const authZone = document.getElementById('auth-zone');
+
+        if (isLogged && authZone) {
+            // Если пользователь залогинен, меняем кнопку "Регистрация" на "Личный кабинет"
+            authZone.innerHTML = `<a href="profile.html" class="btn" style="background: transparent; border: 1px solid var(--accent); color: var(--accent);">Личный кабинет</a>`;
+        }
+    });
+
+    </script>
+</body>
+</html>

@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AetherNode | Премиум 3D-ассеты для Blender</title>
-    <link rel="icon" type="image/png" sizes="32x32" href="..//сайт/favicon.png" />
-    <link rel="icon" type="image/png" sizes="16x16" href="..//сайт/favicon.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
@@ -937,6 +937,17 @@
             }, { threshold: 0.1 });
             document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
         });
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const isLogged = localStorage.getItem('isLoggedIn') === 'true';
+        const authZone = document.getElementById('auth-zone');
+
+        if (isLogged && authZone) {
+            // Если пользователь залогинен, меняем кнопку "Регистрация" на "Личный кабинет"
+            authZone.innerHTML = `<a href="profile.html" class="btn" style="background: transparent; border: 1px solid var(--accent); color: var(--accent);">Личный кабинет</a>`;
+        }
+    });
+
     </script>
 </body>
 </html>

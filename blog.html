@@ -25,8 +25,14 @@
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        @media (min-width: 769px) { body { cursor: none; } a, button, .hover-target, input, select { cursor: pointer !important; } }
+
+        @media (min-width: 769px) { 
+            body { cursor: none; } 
+            a, button, .hover-target, input, select { cursor: pointer !important; } 
+        }
+
         html { scroll-behavior: smooth; }
+
         body {
             font-family: 'Inter', sans-serif;
             background-color: var(--bg-dark);
@@ -66,9 +72,50 @@
         .nav-links a { font-size: 0.9rem; color: var(--text-muted); transition: color 0.3s; padding: 4px 0; }
         .nav-links a:hover { color: var(--text-main); }
         
-        .btn { display: inline-flex; align-items: center; padding: 10px 24px; background: var(--primary); color: white; font-weight: 600; border-radius: 8px; border: none; transition: all 0.3s; font-size: 0.9rem; }
+        .btn { display: inline-flex; align-items: center; padding: 10px 24px; background: var(--primary); color: white; font-weight: 600; border-radius: 8px; border: none; transition: all 0.3s; font-size: 0.9rem; outline: none; }
         .btn:hover { box-shadow: 0 10px 30px -10px rgba(232, 125, 13, 0.6); }
         .btn-profile { background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border); color: var(--accent); }
+
+        /* Иконка бургер-меню */
+        .burger-menu-icon {
+            display: none;
+            background: transparent;
+            border: none;
+            flex-direction: column;
+            gap: 6px;
+            z-index: 1002;
+        }
+        .burger-menu-icon span {
+            display: block;
+            width: 26px;
+            height: 2px;
+            background-color: var(--text-main);
+            transition: transform 0.3s var(--ease-out-expo), opacity 0.3s ease;
+        }
+        .burger-menu-icon.active span:nth-child(1) { transform: translateY(8px) rotate(45deg); }
+        .burger-menu-icon.active span:nth-child(2) { opacity: 0; }
+        .burger-menu-icon.active span:nth-child(3) { transform: translateY(-8px) rotate(-45deg); }
+
+        /* Мобильное выезжающее меню */
+        .mobile-menu {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 300px;
+            max-width: 85vw;
+            height: 100vh;
+            background: #09090c;
+            border-left: 1px solid var(--border);
+            padding: 120px 32px;
+            display: flex;
+            flex-direction: column;
+            gap: 28px;
+            z-index: 1001;
+            transition: right 0.4s var(--ease-out-expo);
+        }
+        .mobile-menu.active { right: 0; }
+        .mobile-menu a { font-size: 1.1rem; color: var(--text-muted); transition: color 0.3s; font-family: 'Space Grotesk', sans-serif; }
+        .mobile-menu a:hover { color: var(--text-main); }
 
         .hero { padding-top: 140px; padding-bottom: 20px; }
         .badge { display: inline-block; padding: 6px 16px; background: rgba(0, 229, 255, 0.08); color: var(--accent); border: 1px solid rgba(0, 229, 255, 0.15); border-radius: 100px; font-size: 0.85rem; margin-bottom: 24px; text-transform: uppercase; letter-spacing: 0.05em; }
@@ -129,77 +176,25 @@
         .reveal.active { opacity: 1; transform: translateY(0); }
         footer { border-top: 1px solid var(--border); padding: 40px 0; text-align: center; color: var(--text-muted); margin-top: 60px; }
 
+        @media (max-width: 840px) {
+            .nav-menu { gap: 10px; font-size: 14px; }
+            .btn-cabinet { padding: 8px 16px; font-size: 14px; }
+        }
+
         @media (max-width: 768px) {
             .nav-links { display: none; }
+            .burger-menu-icon { display: flex; }
             .catalog-scroll-container { overflow-x: visible; padding: 0; }
             .catalog-grid { display: grid; grid-template-columns: 1fr; gap: 20px; width: 100%; }
             .product-card { width: 100%; transform: none !important; }
             .slider-scrollbar, .cursor-dot, .cursor-outline { display: none !important; }
         }
-        /* Основной контейнер шапки */
-.header-container {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: nowrap; /* Не даем элементам ломать строку раньше времени */
-    gap: 15px;
-    padding: 10px 20px;
-}
 
-/* Стили для самого списка ссылок (Главная, Каталог...) */
-.nav-menu {
-    display: flex;
-    gap: 20px;
-    align-items: center;
-}
+        .header-container { display: flex; justify-content: space-between; align-items: center; flex-wrap: nowrap; gap: 15px; padding: 10px 20px; }
+        .nav-menu { display: flex; gap: 20px; align-items: center; }
 
-/* Адаптив для планшетов и мобильных */
-@media (max-width: 840px) {
-    /* Вариант А: Если хотите оставить меню в строку, но уменьшить отступы */
-    .nav-menu {
-        gap: 10px;
-        font-size: 14px; /* Немного уменьшаем шрифт, чтобы всё влезло */
-    }
-    
-    .btn-cabinet {
-        padding: 8px 16px; /* Уменьшаем кнопку «Личный кабинет» */
-        font-size: 14px;
-    }
-}
-
-@media (max-width: 768px) {
-    /* Вариант Б: Скрываем обычное меню на ширине 707px (как в Снимок экрана 2026-06-17 001028.png) 
-       и переводим его в мобильный вид (скрытое меню/бургер) */
-    .nav-menu, .btn-cabinet {
-        display: none; /* Сюда нужно будет повесить класс для раскрывающегося мобильного меню */
-    }
-    
-    /* Кнопка бургера (если добавите её в HTML) */
-    .burger-menu-icon {
-        display: block;
-    }
-}
-.courses-title {
-    /* Наследуем шрифт всей страницы или явно задаем шрифт без засечек */
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-    
-    /* Убираем стандартные засечки, если до этого стоял Serif */
-    font-variant: normal; 
-    
-    /* Подгоняем насыщенность под стиль остального сайта (например, полужирный) */
-    font-weight: 700; 
-    
-    /* Делаем аккуратный межсимвольный интервал, если нужно */
-    letter-spacing: -0.02em;
-}
-
-/* Если хотите, чтобы косые черты '//' были оранжевыми (как на скрине), 
-   а сам текст — белым и в правильном шрифте: */
-.courses-title span.slashes {
-    color: #ff7a00; /* Ваш оранжевый цвет */
-    margin-right: 10px;
-    font-family: inherit;
-}
+        .courses-title { font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; font-variant: normal; font-weight: 700; letter-spacing: -0.02em; }
+        .courses-title span.slashes { color: #ff7a00; margin-right: 10px; font-family: inherit; }
     </style>
 </head>
 <body>
@@ -209,9 +204,8 @@
     <div class="cursor-outline"></div>
     <div class="bg-grid"></div>
 
-    <div class="modal-overlay" id="modal-overlay"></div>
+    <div class="modal-overlay" id="modal-overlay" onclick="closeAllModals()"></div>
 
-    <!-- Модалка входа -->
     <div class="auth-modal" id="login-modal">
         <div class="modal-header">
             <h2>Регистрация / Терминал</h2>
@@ -226,7 +220,6 @@
         </form>
     </div>
 
-    <!-- Модалка профиля -->
     <div class="auth-modal" id="profile-modal" style="width: 500px;">
         <div class="modal-header">
             <h2>Личное дело инженера</h2>
@@ -253,10 +246,23 @@
                         <li><a href="#" style="color:var(--accent)" class="hover-target">Блог</a></li>
                         <li><button class="btn hover-target" id="auth-nav-btn" onclick="handleAuthClick()">Войти в систему</button></li>
                     </ul>
+
+                    <button class="burger-menu-icon" id="burger-menu-btn" aria-label="Открыть меню">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </button>
                 </div>
             </nav>
         </div>
     </header>
+
+    <div class="mobile-menu" id="mobile-menu-panel">
+        <a href="index.html">Главная</a>
+        <a href="index.html#catalog">Каталог</a>
+        <a href="#" style="color: var(--accent);">Блог</a>
+        <button class="btn" id="auth-mobile-btn" style="width: 100%; justify-content: center; margin-top: 10px;" onclick="handleAuthClick()">Войти в систему</button>
+    </div>
 
     <main>
         <section class="hero">
@@ -272,7 +278,6 @@
             </div>
         </section>
 
-        <!-- ПРИОРИТЕТ 1: ОБУЧЕНИЕ И КУРСЫ (ТЕПЕРЬ НАВЕРХУ) -->
         <section id="lessons-section">
             <div class="container">
                 <h2 class="section-title">Практические ИТ-курсы и автоматизация</h2>
@@ -286,7 +291,7 @@
                                     <div class="product-tag">Урок // +50 XP</div>
                                     <h3 class="product-title">Урок 1: Введение в Blender 4.x. Матрицы трансформаций и примитивы</h3>
                                     <div class="product-meta"><span>16 Июня 2026</span><span style="color:var(--primary)">Изучить (+50 XP) →</span></div>
-                                end    </div>
+                                </div>
                             </a>
                             <a href="post.html?id=7" class="product-card hover-target" data-tilt>
                                 <div class="card-shine"></div>
@@ -331,7 +336,6 @@
             </div>
         </section>
 
-        <!-- ПРИОРИТЕТ 2: НОВОСТИ И АНАЛИТИКА (ТЕПЕРЬ ВНИЗУ) -->
         <section id="news-section">
             <div class="container">
                 <h2 class="section-title">Новости и аналитика ИТ-индустрии</h2>
@@ -400,28 +404,51 @@
             setupSlider('scroll-news', 'thumb-news');
             setupSlider('scroll-lessons', 'thumb-lessons');
             initCursorAndTilt();
+            initMobileMenu();
         });
 
         function updateAuthUI() {
             const currentUser = localStorage.getItem('aether_user');
             const authBtn = document.getElementById('auth-nav-btn');
+            const authMobileBtn = document.getElementById('auth-mobile-btn');
+            
             if (currentUser) {
-                authBtn.innerText = 'Личный кабинет';
-                authBtn.classList.add('btn-profile');
+                if (authBtn) {
+                    authBtn.innerText = 'Личный кабинет';
+                    authBtn.classList.add('btn-profile');
+                }
+                if (authMobileBtn) {
+                    authMobileBtn.innerText = 'Личный кабинет';
+                    authMobileBtn.classList.add('btn-profile');
+                }
             } else {
-                authBtn.innerText = 'Войти в систему';
-                authBtn.classList.remove('btn-profile');
+                if (authBtn) {
+                    authBtn.innerText = 'Войти в систему';
+                    authBtn.classList.remove('btn-profile');
+                }
+                if (authMobileBtn) {
+                    authMobileBtn.innerText = 'Войти в систему';
+                    authMobileBtn.classList.remove('btn-profile');
+                }
             }
         }
 
         function handleAuthClick() {
+            // Закрываем мобильное меню при попытке войти/открыть ЛК
+            const burgerBtn = document.getElementById('burger-menu-btn');
+            const mobileMenu = document.getElementById('mobile-menu-panel');
+            if (burgerBtn && mobileMenu) {
+                burgerBtn.classList.remove('active');
+                mobileMenu.classList.remove('active');
+            }
+
             const currentUser = localStorage.getItem('aether_user');
             document.getElementById('modal-overlay').classList.add('active');
             if (currentUser) {
                 document.getElementById('profile-email-text').innerText = currentUser;
                 const completed = JSON.parse(localStorage.getItem('aether_completed_lessons') || '[]');
                 let totalXp = 0; let html = '';
-                
+                                
                 LESSONS_LIST.forEach(lesson => {
                     const isDone = completed.includes(lesson.id);
                     if(isDone) totalXp += lesson.xp;
@@ -435,7 +462,7 @@
                         </div>
                     `;
                 });
-                
+                                
                 document.getElementById('profile-xp-text').innerText = `${totalXp} XP`;
                 document.getElementById('progress-list-container').innerHTML = html;
                 document.getElementById('profile-modal').classList.add('active');
@@ -454,11 +481,37 @@
             }
         });
 
-        function logout() { localStorage.removeItem('aether_user'); closeAllModals(); updateAuthUI(); }
+        function logout() { 
+            localStorage.removeItem('aether_user'); 
+            closeAllModals(); 
+            updateAuthUI(); 
+        }
+
         function closeAllModals() {
             document.getElementById('modal-overlay').classList.remove('active');
             document.getElementById('login-modal').classList.remove('active');
             document.getElementById('profile-modal').classList.remove('active');
+        }
+
+        function initMobileMenu() {
+            const burgerBtn = document.getElementById('burger-menu-btn');
+            const mobileMenu = document.getElementById('mobile-menu-panel');
+
+            if (burgerBtn && mobileMenu) {
+                burgerBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    burgerBtn.classList.toggle('active');
+                    mobileMenu.classList.toggle('active');
+                });
+
+                // Закрывать меню при клике на ссылки внутри мобильного меню
+                mobileMenu.querySelectorAll('a').forEach(link => {
+                    link.addEventListener('click', () => {
+                        burgerBtn.classList.remove('active');
+                        mobileMenu.classList.remove('active');
+                    });
+                });
+            }
         }
 
         function setupSlider(containerId, thumbId) {
@@ -497,16 +550,16 @@
                 let mx = 0, my = 0, ox = 0, oy = 0;
 
                 window.addEventListener('mousemove', (e) => { 
-                    mx = e.clientX; my = e.clientY; 
-                    dot.style.opacity = '1'; outline.style.opacity = '1'; 
-                    dot.style.left = `${mx}px`; dot.style.top = `${my}px`; 
+                     mx = e.clientX; my = e.clientY; 
+                     dot.style.opacity = '1'; outline.style.opacity = '1'; 
+                     dot.style.left = `${mx}px`; dot.style.top = `${my}px`; 
                 });
-                
+                                                
                 const animCursor = () => { 
-                    ox += (mx - ox) * 0.12; oy += (my - oy) * 0.12; 
-                    outline.style.left = `${ox}px`; outline.style.top = `${oy}px`; 
-                    requestAnimationFrame(animCursor); 
-                };
+                     ox += (mx - ox) * 0.12; oy += (my - oy) * 0.12; 
+                     outline.style.left = `${ox}px`; outline.style.top = `${oy}px`; 
+                     requestAnimationFrame(animCursor); 
+                 };
                 animCursor();
 
                 document.body.addEventListener('mouseover', (e) => { if (e.target.closest('.hover-target')) document.body.classList.add('hovering'); });
